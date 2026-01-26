@@ -106,6 +106,17 @@ Surface brightness to surface mass density is linear:
 
 - The bundled sample file `SCPUnion2.1_mu_vs_z.txt` comes from the Supernova Cosmology Project (SCP) Union2.1 compilation hosted by Lawrence Berkeley National Laboratory (LBNL).
 - The Hubble diagram expects columns like z, mu, and optionally emu (1-sigma uncertainty).
+- For full Union2.1 metadata and literature matching, use `SCPUnion2.1_AllSNe.tex`.
+
+### Union2.1 literature matching (AllSNe)
+
+Union2.1 AllSNe rows include a sample ID in the **last column**, which encodes the
+originating literature sample. The app maps that `sample_id` to a human-readable
+paper label and uses it for coloring/labels in the Hubble diagram.
+
+- Loader: `galacosmo/data/snia_loader.py` (`load_union21_latex`)
+- Default mapping: `DEFAULT_SAMPLE_MAPPING` in the loader
+- Optional mapping file: `galacosmo/config/union21_sample_mapping.json`
 
 ## UI quick start
 
