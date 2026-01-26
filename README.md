@@ -137,6 +137,8 @@ paper label and uses it for coloring/labels in the Hubble diagram.
 
 ## Notes & troubleshooting
 
+- The Rotation Curve window includes a "Galaxy 3D View" tab that visualizes the disk/bulge
+  using Table2 surface-brightness profiles (SBdisk/SBbul). Gas is not included in the 3D view.
 - The 3D galaxy tab requires `pyvista` + `pyvistaqt`. If they are missing, the viewer shows a message and remains disabled.
 - If running from an installed package location that is read-only, the app falls back to a user-writable icon cache.
 
