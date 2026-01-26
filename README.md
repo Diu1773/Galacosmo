@@ -38,6 +38,18 @@ Dev tools:
 pip install -e .[dev]
 ```
 
+## Build (PyInstaller)
+
+This builds the packaged app using the existing `GalaCosmo.spec`.
+
+```bash
+python build_exe.py --clean --noconfirm
+```
+
+Output goes to `dist/GalaCosmo/`.
+
+Note: build on the target OS (Windows EXE requires a Windows build host).
+
 ## Data files
 
 The repo includes sample input data in the root:
