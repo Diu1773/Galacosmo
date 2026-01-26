@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 )
 from ...config import get_settings
 from ...config.palettes import DataStyler
-from ...data import load_sn_table, load_union21_latex
+from ...data import load_sn_table, load_union21_latex, get_default_data_dir
 from ...models import mu_theory
 from ...utils import smart_downsample, allocate_points, get_cosmo_cache
 from ..widgets import DualPanelCanvas
@@ -96,10 +96,12 @@ class HubbleDiagramWindow(QMainWindow):
 
     def _on_add_files(self):
         """Handle add files request - auto-detect format."""
+        default_dir = get_default_data_dir()
+        start_dir = str(default_dir) if default_dir else ""
         paths, _ = QFileDialog.getOpenFileNames(
             self,
             "Select SN Ia Data Files",
-            "",
+            start_dir,
             "All Supported (*.csv *.txt *.dat *.tex);;LaTeX (*.tex);;Data (*.csv *.txt *.dat);;All Files (*)"
         )
 

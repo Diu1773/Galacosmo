@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
 from ...config import get_settings
 from ...config.palettes import ROTATION_COLORS
 from ...config.constants import C_KM_S, ML_REF_DISK, ML_REF_BULGE
-from ...data import read_table1, read_table2, find_sparc_files
+from ...data import read_table1, read_table2, find_sparc_files, get_default_data_dir
 from ...models import compute_rotation_curves
 from ..widgets import PlotCanvas, DualPanelCanvas
 from ..galaxy3d import Galaxy3DViewer, Galaxy3DControlPanel
@@ -163,10 +163,12 @@ class RotationCurveWindow(QMainWindow):
 
     def _on_load_data(self):
         """Handle load data request."""
+        default_dir = get_default_data_dir()
+        start_dir = self.base_dir or (str(default_dir) if default_dir else os.getcwd())
         paths, _ = QFileDialog.getOpenFileNames(
             self,
             "Select SPARC Table1 and Table2 Files",
-            self.base_dir or os.getcwd(),
+            start_dir,
             "SPARC Files (*.mrt *.txt *.dat);;All Files (*)",
         )
 

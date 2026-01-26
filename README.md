@@ -52,10 +52,10 @@ Note: build on the target OS (Windows EXE requires a Windows build host).
 
 ## Data files
 
-The repo includes sample input data in the root:
+Place sample input data under `data/` (repo root):
 
-- SPARC: `SPARC_Table1.txt`, `SPARC_Table2.txt`
-- Union2.1 SN Ia: `SCPUnion2.1_AllSNe.tex`, `SCPUnion2.1_mu_vs_z.txt`
+- SPARC: `data/SPARC_Table1.txt`, `data/SPARC_Table2.txt`
+- Union2.1 SN Ia: `data/SCPUnion2.1_AllSNe.tex`, `data/SCPUnion2.1_mu_vs_z.txt`
 
 Load SPARC files in the Rotation Curve window. For SN Ia, use the Hubble Diagram
 window and load `.txt`, `.csv`, `.dat`, or Union2.1 `.tex` files.
@@ -116,9 +116,9 @@ Surface brightness to surface mass density is linear:
 
 ## SN Ia Hubble data (Union2.1)
 
-- The bundled sample file `SCPUnion2.1_mu_vs_z.txt` comes from the Supernova Cosmology Project (SCP) Union2.1 compilation hosted by Lawrence Berkeley National Laboratory (LBNL).
+- The bundled sample file `data/SCPUnion2.1_mu_vs_z.txt` comes from the Supernova Cosmology Project (SCP) Union2.1 compilation hosted by Lawrence Berkeley National Laboratory (LBNL).
 - The Hubble diagram expects columns like z, mu, and optionally emu (1-sigma uncertainty).
-- For full Union2.1 metadata and literature matching, use `SCPUnion2.1_AllSNe.tex`.
+- For full Union2.1 metadata and literature matching, use `data/SCPUnion2.1_AllSNe.tex`.
 
 ### Union2.1 literature matching (AllSNe)
 

@@ -24,6 +24,8 @@ pyproject.toml
 run_galacosmo.py
 
 # Data / assets (keep local)
+data/*
+!data/.gitkeep
 SCPUnion2.1_AllSNe.tex
 SCPUnion2.1_mu_vs_z.txt
 SPARC_Table1.txt
