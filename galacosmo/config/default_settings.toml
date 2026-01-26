@@ -1,0 +1,71 @@
+# GalaCosmo Default Settings
+
+[cosmology]
+H0 = 67.4
+Omega_m = 0.315
+Omega_L = 0.685
+preset = "planck2018"
+
+[rotation_curve]
+ml_disk = 0.5
+ml_bulge = 0.7
+halo_model = "ISO"
+use_Hz = false
+
+[rotation_curve.iso_bounds]
+rho0_min = 1e5
+rho0_max = 1e10
+rc_min = 0.1
+rc_max = 100.0
+
+[rotation_curve.nfw_bounds]
+V200_min = 30.0
+V200_max = 400.0
+c_min = 3.0
+c_max = 30.0
+
+[snia]
+max_display_points = 500
+downsample_method = "density"
+use_log_downsample = true
+x_log_scale = true
+y_log_dl = false
+cache_cosmo = true
+fast_render = false
+reference_color = ""
+reference_linestyle = "-."
+
+[models]
+[models.LCDM]
+enabled = true
+label = "LCDM"
+Omega_m = 0.315
+Omega_L = 0.685
+color = "#377eb8"
+linestyle = "-"
+
+[models.Open]
+enabled = true
+label = "Open"
+Omega_m = 0.315
+Omega_L = 0.0
+color = "#4daf4a"
+linestyle = "--"
+
+[models.EdS]
+enabled = false
+label = "EdS"
+Omega_m = 1.0
+Omega_L = 0.0
+color = "#e41a1c"
+linestyle = ":"
+
+[appearance]
+theme = "dark"
+palette = "colorbrewer"
+marker_size = 4
+line_width = 1.5
+
+[performance]
+cache_enabled = true
+max_cache_size = 32
