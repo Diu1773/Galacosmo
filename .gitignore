@@ -1,0 +1,34 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Build / dist
+build/
+dist/
+
+# Local tooling
+.vscode/
+.idea/
+.claude/
+AGENTS.md
+
+# Project-local scripts/config not requested for push
+pyproject.toml
+run_galacosmo.py
+
+# Data / assets (keep local)
+SCPUnion2.1_AllSNe.tex
+SCPUnion2.1_mu_vs_z.txt
+SPARC_Table1.txt
+SPARC_Table2.txt
+union2_1_hubble_slide_p1.png
+GalaCosmo_v2.0.0/
+GalaCosmo_v2.0.0.zip
+GalaCosmo.spec
