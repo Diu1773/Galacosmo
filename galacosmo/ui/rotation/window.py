@@ -214,21 +214,22 @@ class RotationCurveWindow(QMainWindow):
             )
             return
 
-        self.base_dir = os.path.dirname(table1_path)
-        self.table1_path = table1_path
-        self.table2_path = table2_path
-        self.rotation_controls.set_loaded_files([
-            (f"Table1: {os.path.basename(table1_path)}", table1_path),
-            (f"Table2: {os.path.basename(table2_path)}", table2_path),
-        ])
-
         try:
-            self.table1_df = read_table1(table1_path)
-            self.table2_df = read_table2(table2_path)
-            self._table2_galaxy_cache.clear()
+            table1_df = read_table1(table1_path)
+            table2_df = read_table2(table2_path)
+            if "ID" in table2_df.columns and "ID_key" not in table2_df.columns:
+                table2_df["ID_key"] = table2_df["ID"].astype(str).str.strip().str.lower()
 
-            if "ID" in self.table2_df.columns and "ID_key" not in self.table2_df.columns:
-                self.table2_df["ID_key"] = self.table2_df["ID"].astype(str).str.strip().str.lower()
+            self.base_dir = os.path.dirname(table1_path)
+            self.table1_path = table1_path
+            self.table2_path = table2_path
+            self.table1_df = table1_df
+            self.table2_df = table2_df
+            self._table2_galaxy_cache.clear()
+            self.rotation_controls.set_loaded_files([
+                (f"Table1: {os.path.basename(table1_path)}", table1_path),
+                (f"Table2: {os.path.basename(table2_path)}", table2_path),
+            ])
 
             self._build_table1_lookup()
             self._build_component_presence()
@@ -240,7 +241,7 @@ class RotationCurveWindow(QMainWindow):
             QMessageBox.critical(
                 self,
                 "Load Error",
-                f"Failed to read Table1:\n{e}"
+                f"Failed to read SPARC files:\n{e}"
                 )
 
     def _on_pick_galaxy(self):

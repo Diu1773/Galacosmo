@@ -38,9 +38,9 @@ class CosmoCache:
         Omega_m: float,
         Omega_L: float,
         H0: float,
-        z_min: float,
-        z_max: float,
-        n_points: int,
+        z_min: float = 0.001,
+        z_max: float = 2.0,
+        n_points: int = 500,
     ) -> tuple:
         """Create cache key from parameters."""
         return (
@@ -57,9 +57,9 @@ class CosmoCache:
         Omega_m: float,
         Omega_L: float,
         H0: float,
-        z_min: float,
-        z_max: float,
-        n_points: int,
+        z_min: float = 0.001,
+        z_max: float = 2.0,
+        n_points: int = 500,
     ) -> Optional[Tuple[np.ndarray, np.ndarray]]:
         """
         Get cached curve if available.
@@ -84,13 +84,15 @@ class CosmoCache:
         Omega_m: float,
         Omega_L: float,
         H0: float,
-        z_min: float,
-        z_max: float,
-        n_points: int,
         z_grid: np.ndarray,
         mu_grid: np.ndarray,
+        z_min: float = 0.001,
+        z_max: float = 2.0,
+        n_points: Optional[int] = None,
     ):
         """Store a curve in cache."""
+        if n_points is None:
+            n_points = 500
         key = self._make_key(Omega_m, Omega_L, H0, z_min, z_max, n_points)
 
         # Evict oldest if at capacity
@@ -128,7 +130,7 @@ class CosmoCache:
         tuple
             (z_grid, mu_grid)
         """
-        cached = self.get(Omega_m, Omega_L, H0, z_min, z_max, n_points)
+        cached = self.get(Omega_m, Omega_L, H0, z_min=z_min, z_max=z_max, n_points=n_points)
         if cached is not None:
             return cached
 
@@ -138,7 +140,16 @@ class CosmoCache:
         z_grid = np.logspace(np.log10(z_min), np.log10(z_max), n_points)
         mu_grid = mu_theory(z_grid, Omega_m, Omega_L, H0)
 
-        self.put(Omega_m, Omega_L, H0, z_min, z_max, n_points, z_grid, mu_grid)
+        self.put(
+            Omega_m,
+            Omega_L,
+            H0,
+            z_grid,
+            mu_grid,
+            z_min=z_min,
+            z_max=z_max,
+            n_points=n_points,
+        )
         return z_grid, mu_grid
 
     def clear(self):
