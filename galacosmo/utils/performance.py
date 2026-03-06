@@ -38,12 +38,18 @@ class CosmoCache:
         Omega_m: float,
         Omega_L: float,
         H0: float,
+        z_min: float,
+        z_max: float,
+        n_points: int,
     ) -> tuple:
         """Create cache key from parameters."""
         return (
             round(Omega_m, 4),
             round(Omega_L, 4),
             round(H0, 1),
+            round(z_min, 6),
+            round(z_max, 6),
+            int(n_points),
         )
 
     def get(
@@ -51,6 +57,9 @@ class CosmoCache:
         Omega_m: float,
         Omega_L: float,
         H0: float,
+        z_min: float,
+        z_max: float,
+        n_points: int,
     ) -> Optional[Tuple[np.ndarray, np.ndarray]]:
         """
         Get cached curve if available.
@@ -60,7 +69,7 @@ class CosmoCache:
         tuple or None
             (z_grid, mu_grid) if cached, None otherwise
         """
-        key = self._make_key(Omega_m, Omega_L, H0)
+        key = self._make_key(Omega_m, Omega_L, H0, z_min, z_max, n_points)
         if key in self._cache:
             self.stats.hits += 1
             # Move to end (most recently used)
@@ -75,11 +84,14 @@ class CosmoCache:
         Omega_m: float,
         Omega_L: float,
         H0: float,
+        z_min: float,
+        z_max: float,
+        n_points: int,
         z_grid: np.ndarray,
         mu_grid: np.ndarray,
     ):
         """Store a curve in cache."""
-        key = self._make_key(Omega_m, Omega_L, H0)
+        key = self._make_key(Omega_m, Omega_L, H0, z_min, z_max, n_points)
 
         # Evict oldest if at capacity
         while len(self._cache) >= self.max_size:
@@ -116,7 +128,7 @@ class CosmoCache:
         tuple
             (z_grid, mu_grid)
         """
-        cached = self.get(Omega_m, Omega_L, H0)
+        cached = self.get(Omega_m, Omega_L, H0, z_min, z_max, n_points)
         if cached is not None:
             return cached
 
@@ -126,7 +138,7 @@ class CosmoCache:
         z_grid = np.logspace(np.log10(z_min), np.log10(z_max), n_points)
         mu_grid = mu_theory(z_grid, Omega_m, Omega_L, H0)
 
-        self.put(Omega_m, Omega_L, H0, z_grid, mu_grid)
+        self.put(Omega_m, Omega_L, H0, z_min, z_max, n_points, z_grid, mu_grid)
         return z_grid, mu_grid
 
     def clear(self):

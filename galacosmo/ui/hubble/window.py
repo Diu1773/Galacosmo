@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
     QFileDialog, QMessageBox, QSplitter, QColorDialog,
+    QScrollArea,
 )
 from ...config import get_settings
 from ...config.palettes import DataStyler
@@ -75,9 +76,13 @@ class HubbleDiagramWindow(QMainWindow):
         )
         splitter.addWidget(self.canvas)
 
-        # Right: Controls
+        # Right: Controls (wrapped in scroll area for vertical resizing)
         self.controls = HubbleControlPanel()
-        splitter.addWidget(self.controls)
+        controls_scroll = QScrollArea()
+        controls_scroll.setWidget(self.controls)
+        controls_scroll.setWidgetResizable(True)
+        controls_scroll.setFrameShape(QScrollArea.NoFrame)
+        splitter.addWidget(controls_scroll)
 
         splitter.setSizes([800, 350])
 
@@ -306,7 +311,7 @@ class HubbleDiagramWindow(QMainWindow):
 
         # Plot data
         for label, data in enabled_datasets:
-            df = data["df"].copy()
+            df = data["df"]
             n_points = allocation.get(label, len(df))
 
             # Downsample
@@ -445,8 +450,11 @@ class HubbleDiagramWindow(QMainWindow):
             )
 
             # Residual
-            mu_curve = mu_theory(z_cached, Om, Ol, H0)
-            mu_ref = mu_theory(z_cached, ref_Om, ref_Ol, H0)
+            mu_curve = mu_cached
+            if z_cached.shape == z_ref.shape and np.array_equal(z_cached, z_ref):
+                mu_ref = mu_ref_curve
+            else:
+                mu_ref = np.interp(z_cached, z_ref, mu_ref_curve)
             ax_res.plot(
                 z_cached, mu_curve - mu_ref,
                 linestyle=style.get("linestyle", "-"),

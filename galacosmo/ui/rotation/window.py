@@ -1,6 +1,7 @@
 """Rotation curve analysis window."""
 
 import os
+import re
 import numpy as np
 import pandas as pd
 
@@ -8,6 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
     QFileDialog, QMessageBox, QSplitter, QTabWidget, QLabel, QPushButton,
+    QScrollArea,
 )
 from ...config import get_settings
 from ...config.palettes import ROTATION_COLORS
@@ -43,6 +45,9 @@ class RotationCurveWindow(QMainWindow):
         self.current_galaxy = None
         self.current_data = None
         self.curves = None
+        self._table2_galaxy_cache = {}
+        self._table1_lookup = {}
+        self._component_presence = {}
         self._show_residuals = True
         self._galaxy_view_dirty = True
 
@@ -128,12 +133,23 @@ class RotationCurveWindow(QMainWindow):
 
         splitter.addWidget(self.tabs)
 
-        # Right: Controls
+        # Right: Controls (wrapped in scroll areas for vertical resizing)
         self.controls_tabs = QTabWidget()
         self.rotation_controls = RotationControlPanel()
         self.galaxy_3d_controls = Galaxy3DControlPanel()
-        self.controls_tabs.addTab(self.rotation_controls, "Rotation Controls")
-        self.controls_tabs.addTab(self.galaxy_3d_controls, "Galaxy 3D Controls")
+
+        rotation_scroll = QScrollArea()
+        rotation_scroll.setWidget(self.rotation_controls)
+        rotation_scroll.setWidgetResizable(True)
+        rotation_scroll.setFrameShape(QScrollArea.NoFrame)
+
+        galaxy3d_scroll = QScrollArea()
+        galaxy3d_scroll.setWidget(self.galaxy_3d_controls)
+        galaxy3d_scroll.setWidgetResizable(True)
+        galaxy3d_scroll.setFrameShape(QScrollArea.NoFrame)
+
+        self.controls_tabs.addTab(rotation_scroll, "Rotation Controls")
+        self.controls_tabs.addTab(galaxy3d_scroll, "Galaxy 3D Controls")
         splitter.addWidget(self.controls_tabs)
 
         # Set initial sizes (70% plot, 30% controls)
@@ -209,6 +225,14 @@ class RotationCurveWindow(QMainWindow):
         try:
             self.table1_df = read_table1(table1_path)
             self.table2_df = read_table2(table2_path)
+            self._table2_galaxy_cache.clear()
+
+            if "ID" in self.table2_df.columns and "ID_key" not in self.table2_df.columns:
+                self.table2_df["ID_key"] = self.table2_df["ID"].astype(str).str.strip().str.lower()
+
+            self._build_table1_lookup()
+            self._build_component_presence()
+
             # Auto-select first galaxy
             if len(self.table1_df) > 0:
                 self._set_galaxy(self.table1_df["Galaxy"].iloc[0])
@@ -256,6 +280,9 @@ class RotationCurveWindow(QMainWindow):
         self.current_galaxy = None
         self.current_data = None
         self.curves = None
+        self._table2_galaxy_cache.clear()
+        self._table1_lookup.clear()
+        self._component_presence = {}
         self._galaxy_view_dirty = True
         self.rotation_controls.clear_loaded_files()
         self.rotation_controls.set_galaxy_name("")
@@ -264,20 +291,34 @@ class RotationCurveWindow(QMainWindow):
         self.canvas.draw()
         self.galaxy_3d_viewer.clear()
 
-    def _get_component_presence(self) -> dict:
-        """Build per-galaxy component presence map from Table2."""
-        if self.table2_df is None:
-            return {}
+    @staticmethod
+    def _normalize_galaxy_name(name: str) -> str:
+        """Normalize galaxy names for stable dictionary lookups."""
+        return str(name).strip().lower()
 
-        df = self.table2_df.copy()
-        if "ID" not in df.columns:
-            return {}
+    def _build_table1_lookup(self):
+        """Precompute Table1 lookups used during fitting and 3D rendering."""
+        self._table1_lookup = {}
+        if self.table1_df is None or "Galaxy" not in self.table1_df.columns:
+            return
 
-        df["ID_key"] = df["ID"].astype(str).str.strip().str.lower()
+        for _, row in self.table1_df.iterrows():
+            key = self._normalize_galaxy_name(row["Galaxy"])
+            self._table1_lookup[key] = {
+                "D": row.get("D"),
+                "Rdisk": row.get("Rdisk"),
+            }
+
+    def _build_component_presence(self):
+        """Precompute per-galaxy component availability from Table2."""
+        self._component_presence = {}
+        if self.table2_df is None or "ID" not in self.table2_df.columns:
+            return
+
         status_cols = ["Vgas", "Vdisk", "Vbul", "SBdisk", "SBbul"]
-        presence = {}
+        grouped = self.table2_df.groupby("ID_key" if "ID_key" in self.table2_df.columns else "ID")
 
-        for key, group in df.groupby("ID_key"):
+        for key, group in grouped:
             entry = {}
             for col in status_cols:
                 if col not in group.columns:
@@ -285,9 +326,38 @@ class RotationCurveWindow(QMainWindow):
                     continue
                 values = pd.to_numeric(group[col], errors="coerce").fillna(0.0).to_numpy()
                 entry[col] = bool((values != 0).any())
-            presence[key] = entry
+            self._component_presence[str(key).strip().lower()] = entry
 
-        return presence
+    def _get_galaxy_table2_data(self, galaxy_name: str) -> pd.DataFrame:
+        """Get Table2 rows for a galaxy using in-memory cache."""
+        if self.table2_df is None:
+            raise ValueError("Table2 data is not loaded")
+
+        key = self._normalize_galaxy_name(galaxy_name)
+        cached = self._table2_galaxy_cache.get(key)
+        if cached is not None:
+            return cached
+
+        if "ID_key" in self.table2_df.columns:
+            mask = self.table2_df["ID_key"] == key
+        else:
+            mask = self.table2_df["ID"].astype(str).str.strip().str.lower() == key
+
+        if not mask.any():
+            mask = self.table2_df["ID"].astype(str).str.contains(
+                re.escape(galaxy_name), case=False, na=False
+            )
+
+        if not mask.any():
+            raise ValueError(f"Galaxy '{galaxy_name}' not found in Table2")
+
+        galaxy_df = self.table2_df.loc[mask].sort_values("R").reset_index(drop=True).copy()
+        self._table2_galaxy_cache[key] = galaxy_df
+        return galaxy_df
+
+    def _get_component_presence(self) -> dict:
+        """Build per-galaxy component presence map from Table2."""
+        return self._component_presence
 
     def _set_galaxy(self, name: str):
         """Set current galaxy and run fit."""
@@ -315,12 +385,12 @@ class RotationCurveWindow(QMainWindow):
 
     def _run_fit(self):
         """Run rotation curve fitting."""
-        if not self.table2_path or not self.current_galaxy:
+        if self.table2_df is None or not self.current_galaxy:
             return
 
         try:
-            # Load galaxy data
-            data = read_table2(self.table2_path, self.current_galaxy)
+            # Reuse cached, preloaded Table2 data by galaxy.
+            data = self._get_galaxy_table2_data(self.current_galaxy)
             self.current_data = data
             self._galaxy_view_dirty = True
 
@@ -336,19 +406,15 @@ class RotationCurveWindow(QMainWindow):
             halo_kwargs = self.rotation_controls.get_cosmology_params()
 
             z_est = 0.0
-            if self.table1_df is not None:
-                mask = (
-                    self.table1_df["Galaxy"].astype(str).str.strip().str.lower()
-                    == self.current_galaxy.strip().lower()
-                )
-                if mask.any():
-                    dist = self.table1_df.loc[mask, "D"].iloc[0]
-                    try:
-                        dist = float(dist)
-                    except (TypeError, ValueError):
-                        dist = 0.0
-                    if np.isfinite(dist) and dist > 0:
-                        z_est = (halo_kwargs["H0"] * dist) / C_KM_S
+            table1_entry = self._table1_lookup.get(self._normalize_galaxy_name(self.current_galaxy))
+            if table1_entry is not None:
+                dist = table1_entry.get("D")
+                try:
+                    dist = float(dist)
+                except (TypeError, ValueError):
+                    dist = 0.0
+                if np.isfinite(dist) and dist > 0:
+                    z_est = (halo_kwargs["H0"] * dist) / C_KM_S
             halo_kwargs["z"] = z_est
 
             # Compute all curves
@@ -627,17 +693,13 @@ class RotationCurveWindow(QMainWindow):
 
         # Get disk scale length from Table1 if available
         h_R = None
-        if self.table1_df is not None:
-            mask = (
-                self.table1_df["Galaxy"].astype(str).str.strip().str.lower()
-                == self.current_galaxy.strip().lower()
-            )
-            if mask.any():
-                rdisk = self.table1_df.loc[mask, "Rdisk"].iloc[0]
-                try:
-                    h_R = float(rdisk)
-                except (TypeError, ValueError):
-                    h_R = None
+        table1_entry = self._table1_lookup.get(self._normalize_galaxy_name(self.current_galaxy))
+        if table1_entry is not None:
+            rdisk = table1_entry.get("Rdisk")
+            try:
+                h_R = float(rdisk)
+            except (TypeError, ValueError):
+                h_R = None
 
         # Build halo parameters if available
         halo_params = None
