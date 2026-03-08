@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         title.setAlignment(Qt.AlignCenter)
         header_layout.addWidget(title)
 
-        subtitle = QLabel("Galaxy Rotation Curve & Cosmology Analysis Tool")
+        subtitle = QLabel("예비교사를 위한 OER 기반 암흑물질·우주론 탐구 GUI")
         subtitle.setObjectName("subtitle")
         subtitle.setAlignment(Qt.AlignCenter)
         header_layout.addWidget(subtitle)
@@ -116,8 +116,8 @@ class MainWindow(QMainWindow):
 
         # Rotation curve card
         self.card_rotation = CardWidget(
-            title="Rotation Curve",
-            description="Fit dark matter halo models\nto galaxy rotation curves",
+            title="은하 회전곡선",
+            description="SPARC 실제 데이터로\n암흑물질 필요성을 탐구",
             icon_text="\U0001F300",  # Galaxy emoji
         )
         self.card_rotation.set_callback(self._open_rotation)
@@ -125,8 +125,8 @@ class MainWindow(QMainWindow):
 
         # Hubble diagram card
         self.card_hubble = CardWidget(
-            title="Hubble Diagram",
-            description="Analyze Type Ia supernovae\nand cosmological models",
+            title="허블 다이어그램",
+            description="확장 활동: SN Ia 데이터로\n우주론 모형 비교",
             icon_text="\U00002B50",  # Star emoji
         )
         self.card_hubble.set_callback(self._open_hubble)
@@ -139,11 +139,11 @@ class MainWindow(QMainWindow):
         footer_layout = QHBoxLayout()
         footer_layout.addStretch()
 
-        self.btn_guide = QPushButton("Guide")
+        self.btn_guide = QPushButton("예비교사 가이드")
         self.btn_guide.clicked.connect(self._open_guide)
         footer_layout.addWidget(self.btn_guide)
 
-        self.btn_settings = QPushButton("Settings")
+        self.btn_settings = QPushButton("설정")
         self.btn_settings.clicked.connect(self._open_settings)
         footer_layout.addWidget(self.btn_settings)
 

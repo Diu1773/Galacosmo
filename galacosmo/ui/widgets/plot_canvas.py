@@ -85,9 +85,9 @@ class PlotCanvas(QWidget):
             self._help_callback()
             return
         if self._help_text:
-            QMessageBox.information(self, "Help", self._help_text)
+            QMessageBox.information(self, "도움말", self._help_text)
             return
-        QMessageBox.information(self, "Help", "No help available for this view.")
+        QMessageBox.information(self, "도움말", "현재 보기에는 별도 도움말이 없습니다.")
 
     def set_help_text(self, text: str):
         """Set help text for the toolbar help action."""

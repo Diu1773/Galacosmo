@@ -41,15 +41,15 @@ class HubbleControlPanel(QWidget):
         layout.setSpacing(12)
 
         # Data section
-        data_group = QGroupBox("Data")
+        data_group = QGroupBox("데이터")
         data_layout = QVBoxLayout(data_group)
 
         btn_row = QHBoxLayout()
-        self.btn_add_files = QPushButton("Add Files")
-        self.btn_add_files.setToolTip("Load CSV/TXT/DAT or Union2.1 .tex files")
-        self.btn_del_sel = QPushButton("Delete Selected")
-        self.btn_set_color = QPushButton("Set Color")
-        self.btn_del_all = QPushButton("Delete All")
+        self.btn_add_files = QPushButton("파일 추가")
+        self.btn_add_files.setToolTip("CSV/TXT/DAT 또는 Union2.1 .tex 파일을 불러옵니다.")
+        self.btn_del_sel = QPushButton("선택 삭제")
+        self.btn_set_color = QPushButton("색상 변경")
+        self.btn_del_all = QPushButton("전체 삭제")
         self.btn_del_all.setObjectName("danger")
         btn_row.addWidget(self.btn_add_files)
         btn_row.addWidget(self.btn_del_sel)
@@ -57,7 +57,7 @@ class HubbleControlPanel(QWidget):
         btn_row.addWidget(self.btn_del_all)
         data_layout.addLayout(btn_row)
 
-        self.lbl_info = QLabel("No datasets loaded")
+        self.lbl_info = QLabel("불러온 데이터셋 없음")
         self.lbl_info.setObjectName("subtitle")
         data_layout.addWidget(self.lbl_info)
 
@@ -67,24 +67,24 @@ class HubbleControlPanel(QWidget):
         data_layout.addWidget(self.list_datasets)
 
         # Union2.1 specific option
-        self.chk_exclude_cuts = QCheckBox("Exclude cuts failed (Union2.1)")
-        self.chk_exclude_cuts.setToolTip("Exclude SNe with quality cuts failed flags")
+        self.chk_exclude_cuts = QCheckBox("품질 기준 탈락 자료 제외 (Union2.1)")
+        self.chk_exclude_cuts.setToolTip("quality cuts failed 표식이 있는 초신성을 제외합니다.")
         self.chk_exclude_cuts.setChecked(False)
         data_layout.addWidget(self.chk_exclude_cuts)
 
         layout.addWidget(data_group)
 
         # Cosmology section
-        cosmo_group = QGroupBox("Cosmology")
+        cosmo_group = QGroupBox("우주론")
         cosmo_layout = QGridLayout(cosmo_group)
 
-        info_ref = QLabel("Reference cosmology (residual baseline)")
+        info_ref = QLabel("기준 우주론 (잔차 계산 기준선)")
         info_ref.setObjectName("subtitle")
         cosmo_layout.addWidget(info_ref, 0, 0, 1, 2)
 
-        cosmo_layout.addWidget(QLabel("Preset:"), 1, 0)
+        cosmo_layout.addWidget(QLabel("프리셋:"), 1, 0)
         self.cmb_preset = QComboBox()
-        self.cmb_preset.addItem("Custom", "custom")
+        self.cmb_preset.addItem("사용자 지정", "custom")
         for key, preset in COSMO_PRESETS.items():
             self.cmb_preset.addItem(preset["name"], key)
         preset_key = self.settings.get("cosmology", "preset", default="custom")
@@ -125,22 +125,22 @@ class HubbleControlPanel(QWidget):
         layout.addWidget(cosmo_group)
 
         # SN Ia section
-        snia_group = QGroupBox("SN Ia")
+        snia_group = QGroupBox("SN Ia 탐구")
         snia_layout = QVBoxLayout(snia_group)
 
         snia_grid = QGridLayout()
-        snia_grid.addWidget(QLabel("Max points:"), 0, 0)
+        snia_grid.addWidget(QLabel("최대 점 개수:"), 0, 0)
         self.sp_max_points = QSpinBox()
         self.sp_max_points.setRange(10, 50000)
         self.sp_max_points.setSingleStep(100)
         self.sp_max_points.setValue(self.settings.max_display_points)
         snia_grid.addWidget(self.sp_max_points, 0, 1)
 
-        snia_grid.addWidget(QLabel("Downsample method:"), 1, 0)
+        snia_grid.addWidget(QLabel("다운샘플 방식:"), 1, 0)
         self.cmb_downsample = QComboBox()
-        self.cmb_downsample.addItem("Density-based", "density")
-        self.cmb_downsample.addItem("Uniform", "uniform")
-        self.cmb_downsample.addItem("Log-uniform", "log_uniform")
+        self.cmb_downsample.addItem("밀도 기반", "density")
+        self.cmb_downsample.addItem("균등", "uniform")
+        self.cmb_downsample.addItem("로그 균등", "log_uniform")
         downsample = self.settings.get("snia", "downsample_method", default="density")
         idx = self.cmb_downsample.findData(downsample)
         if idx >= 0:
@@ -148,25 +148,25 @@ class HubbleControlPanel(QWidget):
         snia_grid.addWidget(self.cmb_downsample, 1, 1)
         snia_layout.addLayout(snia_grid)
 
-        self.chk_log_x = QCheckBox("Log scale x-axis")
+        self.chk_log_x = QCheckBox("x축 로그 스케일")
         self.chk_log_x.setChecked(self.settings.get("snia", "x_log_scale", default=True))
         snia_layout.addWidget(self.chk_log_x)
 
-        self.chk_log_downsample = QCheckBox("Log-spaced downsampling")
+        self.chk_log_downsample = QCheckBox("로그 간격 다운샘플링")
         self.chk_log_downsample.setChecked(
             self.settings.get("snia", "use_log_downsample", default=True)
         )
         snia_layout.addWidget(self.chk_log_downsample)
 
-        self.chk_y_log_dl = QCheckBox("Show log₁₀(D_L) instead of μ")
+        self.chk_y_log_dl = QCheckBox("μ 대신 log₁₀(D_L) 표시")
         self.chk_y_log_dl.setChecked(self.settings.get("snia", "y_log_dl", default=False))
         snia_layout.addWidget(self.chk_y_log_dl)
 
-        self.chk_cache = QCheckBox("Cache cosmology curves")
+        self.chk_cache = QCheckBox("우주론 곡선 캐시 사용")
         self.chk_cache.setChecked(self.settings.get("snia", "cache_cosmo", default=True))
         snia_layout.addWidget(self.chk_cache)
 
-        self.chk_fast_render = QCheckBox("Fast rendering")
+        self.chk_fast_render = QCheckBox("빠른 렌더링")
         self.chk_fast_render.setChecked(
             self.settings.get("snia", "fast_render", default=False)
         )
@@ -179,18 +179,18 @@ class HubbleControlPanel(QWidget):
         layout.addWidget(snia_group)
 
         # Cosmology models section
-        models_group = QGroupBox("Cosmology Models")
+        models_group = QGroupBox("우주론 비교 모형")
         models_layout = QVBoxLayout(models_group)
 
         info_models = QLabel(
-            "Comparison models (preset does not change these). "
-            "Reference curve is plotted separately."
+            "비교용 모형 목록입니다. 프리셋을 바꿔도 이 목록은 자동 변경되지 않으며, "
+            "기준 곡선은 별도로 그려집니다."
         )
         info_models.setObjectName("subtitle")
         models_layout.addWidget(info_models)
 
         btn_models_layout = QHBoxLayout()
-        self.btn_manage_models = QPushButton("Manage Models")
+        self.btn_manage_models = QPushButton("모형 관리")
         btn_models_layout.addWidget(self.btn_manage_models)
         btn_models_layout.addStretch()
         models_layout.addLayout(btn_models_layout)
@@ -292,7 +292,7 @@ class HubbleControlPanel(QWidget):
             if widget is not None:
                 widget.deleteLater()
 
-        ref_label = "Reference (preset)"
+        ref_label = "기준 모형 (preset)"
         self.cb_reference = QCheckBox(ref_label)
         self.cb_reference.setChecked(True)
         self.cb_reference.setEnabled(False)
@@ -391,8 +391,8 @@ class HubbleControlPanel(QWidget):
     def update_info(self, n_datasets: int, n_enabled: int, n_total: int, n_shown: int):
         """Update info label."""
         self.lbl_info.setText(
-            f"Datasets: {n_datasets} ({n_enabled} enabled) | "
-            f"Points: {n_total} → {n_shown}"
+            f"데이터셋: {n_datasets}개 ({n_enabled}개 표시) | "
+            f"점 개수: {n_total} → {n_shown}"
         )
 
     def update_chi2(self, chi2: float, reduced: float, n: int, k: int):
@@ -401,7 +401,7 @@ class HubbleControlPanel(QWidget):
             self.lbl_chi2.setText("χ²: —")
         else:
             self.lbl_chi2.setText(
-                f"χ² = {chi2:.1f} (reduced: {reduced:.2f}) | N={n}, sets={k}"
+                f"χ² = {chi2:.1f} (reduced: {reduced:.2f}) | 점 수={n}, 데이터셋={k}"
             )
 
     def get_H0(self) -> float:

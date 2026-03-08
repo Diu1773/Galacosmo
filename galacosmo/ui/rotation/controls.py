@@ -40,24 +40,24 @@ class RotationControlPanel(QWidget):
         layout.setSpacing(12)
 
         # Data section
-        data_group = QGroupBox("Data")
+        data_group = QGroupBox("데이터")
         data_layout = QVBoxLayout(data_group)
 
         btn_layout = QHBoxLayout()
-        self.btn_load = QPushButton("Load Files")
-        self.btn_load.setToolTip("Select SPARC Table1 and Table2 files")
+        self.btn_load = QPushButton("파일 불러오기")
+        self.btn_load.setToolTip("SPARC Table1, Table2 파일을 선택합니다.")
         btn_layout.addWidget(self.btn_load)
 
-        self.btn_pick = QPushButton("Select Galaxy")
-        self.btn_pick.setToolTip("Choose a galaxy from the catalog")
+        self.btn_pick = QPushButton("은하 선택")
+        self.btn_pick.setToolTip("SPARC 목록에서 은하를 고릅니다.")
         btn_layout.addWidget(self.btn_pick)
         data_layout.addLayout(btn_layout)
 
-        self.lbl_galaxy = QLabel("No galaxy selected")
+        self.lbl_galaxy = QLabel("선택된 은하 없음")
         self.lbl_galaxy.setObjectName("subtitle")
         data_layout.addWidget(self.lbl_galaxy)
 
-        files_label = QLabel("Loaded files")
+        files_label = QLabel("불러온 파일")
         files_label.setObjectName("subtitle")
         data_layout.addWidget(files_label)
 
@@ -66,8 +66,8 @@ class RotationControlPanel(QWidget):
         data_layout.addWidget(self.list_files)
 
         file_btn_layout = QHBoxLayout()
-        self.btn_del_sel = QPushButton("Delete Selected")
-        self.btn_del_all = QPushButton("Delete All")
+        self.btn_del_sel = QPushButton("선택 삭제")
+        self.btn_del_all = QPushButton("전체 삭제")
         self.btn_del_all.setObjectName("danger")
         file_btn_layout.addWidget(self.btn_del_sel)
         file_btn_layout.addWidget(self.btn_del_all)
@@ -76,13 +76,13 @@ class RotationControlPanel(QWidget):
         layout.addWidget(data_group)
 
         # Rotation curve section
-        rotation_group = QGroupBox("Rotation Curve")
+        rotation_group = QGroupBox("회전곡선 탐구")
         rotation_layout = QVBoxLayout(rotation_group)
 
-        rotation_layout.addWidget(QLabel("Halo model:"))
+        rotation_layout.addWidget(QLabel("헤일로 모델:"))
         self.rb_iso = QRadioButton("Isothermal (ISO)")
         self.rb_nfw = QRadioButton("NFW")
-        self.btn_nfw_settings = QPushButton("NFW Settings")
+        self.btn_nfw_settings = QPushButton("NFW 설정")
 
         if self.settings.halo_model == "NFW":
             self.rb_nfw.setChecked(True)
@@ -117,7 +117,7 @@ class RotationControlPanel(QWidget):
         layout.addWidget(rotation_group)
 
         # Curves visibility section
-        curves_group = QGroupBox("Display Curves")
+        curves_group = QGroupBox("표시 곡선")
         curves_layout = QVBoxLayout(curves_group)
 
         self.curve_checkboxes = {}
@@ -161,7 +161,7 @@ class RotationControlPanel(QWidget):
         layout.addWidget(curves_group)
 
         # Fit results section
-        self.results_group = QGroupBox("Fit Results")
+        self.results_group = QGroupBox("적합 결과")
         self.results_layout = QVBoxLayout(self.results_group)
         self.lbl_param1 = QLabel("—")
         self.lbl_param2 = QLabel("—")
@@ -235,11 +235,13 @@ class RotationControlPanel(QWidget):
         if name == "Observed + Total":
             obs = ROTATION_COLORS.get("Observed", "#000000")
             total = ROTATION_COLORS.get("Total", "#000000")
-            cb.setToolTip(f"Observed: {obs}\nTotal: {total}\nRight-click to set colors.")
+            cb.setToolTip(
+                f"Observed: {obs}\nTotal: {total}\n우클릭하여 색상을 변경할 수 있습니다."
+            )
         else:
             key = color_keys[0]
             color = ROTATION_COLORS.get(key, "#000000")
-            cb.setToolTip(f"{key} color: {color}\nRight-click to set color.")
+            cb.setToolTip(f"{key} color: {color}\n우클릭하여 색상을 변경할 수 있습니다.")
 
     def _on_curve_color_menu(self, checkbox: QCheckBox, pos):
         """Open color picker for curve colors."""
@@ -247,8 +249,8 @@ class RotationControlPanel(QWidget):
         color_keys = self.curve_color_keys.get(name, [name])
         if name == "Observed + Total":
             menu = QMenu(self)
-            act_obs = menu.addAction("Set Observed Color")
-            act_tot = menu.addAction("Set Total Color")
+            act_obs = menu.addAction("Observed 색상 설정")
+            act_tot = menu.addAction("Total 색상 설정")
             action = menu.exec_(checkbox.mapToGlobal(pos))
             if action == act_obs:
                 self._pick_curve_color("Observed")
@@ -283,9 +285,9 @@ class RotationControlPanel(QWidget):
     def set_galaxy_name(self, name: str):
         """Update displayed galaxy name."""
         if name:
-            self.lbl_galaxy.setText(f"Galaxy: {name}")
+            self.lbl_galaxy.setText(f"은하: {name}")
         else:
-            self.lbl_galaxy.setText("No galaxy selected")
+            self.lbl_galaxy.setText("선택된 은하 없음")
 
     def set_fit_results(self, model: str, p1: float, p2: float):
         """Update fit results display."""
@@ -302,7 +304,7 @@ class RotationControlPanel(QWidget):
             self.lbl_chi2.setText("χ²: —")
         else:
             self.lbl_chi2.setText(
-                f"χ² = {chi2:.1f} (reduced: {reduced:.2f}) | N={n}"
+                f"χ² = {chi2:.1f} (reduced: {reduced:.2f}) | 데이터 수={n}"
             )
 
     def set_loaded_files(self, files: list):
@@ -363,18 +365,18 @@ class GalaxyViewControlPanel(QWidget):
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
 
-        galaxy_group = QGroupBox("Galaxy View")
+        galaxy_group = QGroupBox("은하 보기")
         galaxy_layout = QVBoxLayout(galaxy_group)
 
-        galaxy_layout.addWidget(QLabel("Component:"))
+        galaxy_layout.addWidget(QLabel("구성 성분:"))
         self.cmb_component = QComboBox()
-        self.cmb_component.addItem("Total (Disk + Bulge)", "total")
-        self.cmb_component.addItem("Disk only", "disk")
-        self.cmb_component.addItem("Bulge only", "bulge")
+        self.cmb_component.addItem("전체 (Disk + Bulge)", "total")
+        self.cmb_component.addItem("Disk만", "disk")
+        self.cmb_component.addItem("Bulge만", "bulge")
         galaxy_layout.addWidget(self.cmb_component)
 
         grid_layout = QGridLayout()
-        grid_layout.addWidget(QLabel("Grid size:"), 0, 0)
+        grid_layout.addWidget(QLabel("격자 크기:"), 0, 0)
         self.sp_grid = QSpinBox()
         self.sp_grid.setRange(40, 200)
         self.sp_grid.setSingleStep(10)
@@ -382,7 +384,7 @@ class GalaxyViewControlPanel(QWidget):
         grid_layout.addWidget(self.sp_grid, 0, 1)
         galaxy_layout.addLayout(grid_layout)
 
-        note = QLabel("Uses SBdisk/SBbul from Table2 (gas profile not provided).")
+        note = QLabel("Table2의 SBdisk/SBbul을 사용합니다. 가스 분포는 제공되지 않습니다.")
         note.setObjectName("subtitle")
         note.setWordWrap(True)
         galaxy_layout.addWidget(note)
@@ -408,7 +410,7 @@ class NFWSettingsDialog(QDialog):
     def __init__(self, settings, parent=None):
         super().__init__(parent)
         self.settings = settings
-        self.setWindowTitle("NFW Settings")
+        self.setWindowTitle("NFW 설정")
         self._setup_ui()
 
     def _setup_ui(self):
@@ -417,10 +419,10 @@ class NFWSettingsDialog(QDialog):
         groups_layout = QHBoxLayout()
         layout.addLayout(groups_layout)
 
-        preset_group = QGroupBox("Preset & Options")
+        preset_group = QGroupBox("프리셋 및 옵션")
         preset_layout = QVBoxLayout(preset_group)
 
-        preset_layout.addWidget(QLabel("Preset:"))
+        preset_layout.addWidget(QLabel("프리셋:"))
         self.cmb_preset = QComboBox()
         self.cmb_preset.addItem("Custom", "custom")
         for key, preset in COSMO_PRESETS.items():
@@ -431,7 +433,7 @@ class NFWSettingsDialog(QDialog):
             self.cmb_preset.setCurrentIndex(preset_idx)
         preset_layout.addWidget(self.cmb_preset)
 
-        self.chk_use_Hz = QCheckBox("Use H(z) instead of H₀")
+        self.chk_use_Hz = QCheckBox("H₀ 대신 H(z) 사용")
         self.chk_use_Hz.setChecked(
             self.settings.get("rotation_curve", "use_Hz", default=False)
         )
@@ -442,7 +444,7 @@ class NFWSettingsDialog(QDialog):
         preset_layout.addWidget(self.lbl_Ok)
         preset_layout.addStretch()
 
-        param_group = QGroupBox("Parameters")
+        param_group = QGroupBox("매개변수")
         param_layout = QGridLayout(param_group)
 
         param_layout.addWidget(QLabel("H₀ (km/s/Mpc):"), 0, 0)

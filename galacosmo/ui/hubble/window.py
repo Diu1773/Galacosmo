@@ -49,7 +49,7 @@ class HubbleDiagramWindow(QMainWindow):
         self._connect_signals()
 
     def _setup_ui(self):
-        self.setWindowTitle("SN Ia Hubble Diagram")
+        self.setWindowTitle("SN Ia 허블 다이어그램")
         self.resize(1300, 850)
 
         if self.app_icon:
@@ -66,13 +66,13 @@ class HubbleDiagramWindow(QMainWindow):
         # Left: Dual panel plot
         self.canvas = DualPanelCanvas(figsize=(10, 8), height_ratios=(3, 1))
         self.canvas.set_help_text(
-            "Hubble Diagram Help\n\n"
-            "- Preset values set the reference cosmology baseline\n"
-            "- Residuals show delta mu relative to the reference\n"
-            "- Cosmology Models are comparison curves (edit via Manage Models)\n"
-            "- Reference curve is plotted from the preset values\n"
-            "- Max points and downsampling control performance\n"
-            "- Log scale uses z > 0 only\n"
+            "허블 다이어그램 도움말\n\n"
+            "- 이 창은 암흑물질 탐구의 확장 활동으로 사용할 수 있습니다.\n"
+            "- Preset은 기준 우주론(Reference)의 기준선을 설정합니다.\n"
+            "- Residuals는 관측 거리 모듈러스와 기준 모형의 차이 Δμ를 보여줍니다.\n"
+            "- Cosmology Models는 비교용 곡선이며 Manage Models에서 조정할 수 있습니다.\n"
+            "- 점 개수와 다운샘플링 설정은 성능과 가독성에 영향을 줍니다.\n"
+            "- 로그 축은 z > 0 자료에서만 의미가 있습니다.\n"
         )
         splitter.addWidget(self.canvas)
 
@@ -105,7 +105,7 @@ class HubbleDiagramWindow(QMainWindow):
         start_dir = str(default_dir) if default_dir else ""
         paths, _ = QFileDialog.getOpenFileNames(
             self,
-            "Select SN Ia Data Files",
+            "SN Ia 데이터 파일 선택",
             start_dir,
             "All Supported (*.csv *.txt *.dat *.tex);;LaTeX (*.tex);;Data (*.csv *.txt *.dat);;All Files (*)"
         )
@@ -136,8 +136,8 @@ class HubbleDiagramWindow(QMainWindow):
             except Exception as e:
                 QMessageBox.warning(
                     self,
-                    "Load Error",
-                    f"Failed to load {os.path.basename(path)}:\n{e}"
+                    "불러오기 오류",
+                    f"{os.path.basename(path)} 파일을 불러오는 중 오류가 발생했습니다.\n{e}"
                 )
 
         if added > 0 or tex_files:
@@ -151,7 +151,11 @@ class HubbleDiagramWindow(QMainWindow):
             df = load_union21_latex(path, exclude_cuts_failed=exclude_cuts)
 
             if len(df) == 0:
-                QMessageBox.warning(self, "No Data", f"No valid data in {os.path.basename(path)}")
+                QMessageBox.warning(
+                    self,
+                    "데이터 없음",
+                    f"{os.path.basename(path)} 안에 사용할 수 있는 데이터가 없습니다."
+                )
                 return
 
             # Store for interactive features and reload on exclude_cuts toggle
@@ -176,8 +180,8 @@ class HubbleDiagramWindow(QMainWindow):
         except Exception as e:
             QMessageBox.warning(
                 self,
-                "Load Error",
-                f"Failed to load {os.path.basename(path)}:\n{e}"
+                "불러오기 오류",
+                f"{os.path.basename(path)} 파일을 불러오는 중 오류가 발생했습니다.\n{e}"
             )
 
     def _on_exclude_cuts_changed(self, exclude: bool):
@@ -235,7 +239,7 @@ class HubbleDiagramWindow(QMainWindow):
         """Handle dataset color change."""
         labels = self.controls.get_selected_datasets()
         if not labels:
-            QMessageBox.information(self, "No Selection", "Select a dataset to color.")
+            QMessageBox.information(self, "선택 없음", "색상을 바꿀 데이터셋을 선택하세요.")
             return
 
         color = QColorDialog.getColor(parent=self)

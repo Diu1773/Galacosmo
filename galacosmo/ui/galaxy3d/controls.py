@@ -37,35 +37,35 @@ class Galaxy3DControlPanel(QWidget):
         layout.setSpacing(12)
 
         # Component Selection
-        component_group = QGroupBox("Component")
+        component_group = QGroupBox("구성 성분")
         component_layout = QVBoxLayout(component_group)
 
         self.component_combo = QComboBox()
-        self.component_combo.addItems(["Total (Disk + Bulge)", "Disk Only", "Bulge Only"])
+        self.component_combo.addItems(["전체 (Disk + Bulge)", "Disk만", "Bulge만"])
         component_layout.addWidget(self.component_combo)
 
         layout.addWidget(component_group)
 
         # Render Mode
-        render_group = QGroupBox("Render Mode")
+        render_group = QGroupBox("렌더링 방식")
         render_layout = QVBoxLayout(render_group)
 
         self.render_combo = QComboBox()
-        self.render_combo.addItems(["Surface", "Volume", "Isosurface"])
+        self.render_combo.addItems(["표면", "볼륨", "등밀도면"])
         render_layout.addWidget(self.render_combo)
 
         # Resolution
         res_layout = QHBoxLayout()
-        res_layout.addWidget(QLabel("Resolution:"))
+        res_layout.addWidget(QLabel("해상도:"))
         self.resolution_combo = QComboBox()
-        self.resolution_combo.addItems(["Low", "Medium", "High"])
+        self.resolution_combo.addItems(["낮음", "보통", "높음"])
         self.resolution_combo.setCurrentIndex(1)  # Default: Medium
         res_layout.addWidget(self.resolution_combo)
         render_layout.addLayout(res_layout)
 
         # Opacity slider
         opacity_layout = QHBoxLayout()
-        opacity_layout.addWidget(QLabel("Opacity:"))
+        opacity_layout.addWidget(QLabel("투명도:"))
         self.opacity_slider = QSlider(Qt.Horizontal)
         self.opacity_slider.setMinimum(10)
         self.opacity_slider.setMaximum(100)
@@ -78,59 +78,59 @@ class Galaxy3DControlPanel(QWidget):
         layout.addWidget(render_group)
 
         # Visual Options
-        options_group = QGroupBox("Visual Options")
+        options_group = QGroupBox("시각화 옵션")
         options_layout = QVBoxLayout(options_group)
 
-        self.check_axes = QCheckBox("Show Axes")
+        self.check_axes = QCheckBox("축 표시")
         self.check_axes.setChecked(True)
         options_layout.addWidget(self.check_axes)
 
-        self.check_spiral = QCheckBox("Show Spiral Arms")
+        self.check_spiral = QCheckBox("나선팔 표시")
         self.check_spiral.setChecked(False)
-        self.check_spiral.setToolTip("Apply logarithmic spiral arm pattern")
+        self.check_spiral.setToolTip("로그 나선 형태를 시각적으로 덧씌웁니다.")
         options_layout.addWidget(self.check_spiral)
 
-        self.check_halo = QCheckBox("Show Dark Matter Halo")
+        self.check_halo = QCheckBox("암흑물질 헤일로 표시")
         self.check_halo.setChecked(False)
-        self.check_halo.setToolTip("Display halo as wireframe sphere")
+        self.check_halo.setToolTip("헤일로를 와이어프레임 구 형태로 표시합니다.")
         options_layout.addWidget(self.check_halo)
 
         layout.addWidget(options_group)
 
         # View Presets
-        view_group = QGroupBox("Camera View")
+        view_group = QGroupBox("카메라 시점")
         view_layout = QVBoxLayout(view_group)
 
         btn_row1 = QHBoxLayout()
-        self.btn_iso = QPushButton("Isometric")
-        self.btn_iso.setToolTip("3D isometric view (R)")
-        self.btn_top = QPushButton("Top")
-        self.btn_top.setToolTip("Top-down view (T)")
+        self.btn_iso = QPushButton("등각")
+        self.btn_iso.setToolTip("3D 등각 시점 (R)")
+        self.btn_top = QPushButton("위")
+        self.btn_top.setToolTip("위에서 내려다보는 시점 (T)")
         btn_row1.addWidget(self.btn_iso)
         btn_row1.addWidget(self.btn_top)
         view_layout.addLayout(btn_row1)
 
         btn_row2 = QHBoxLayout()
-        self.btn_side = QPushButton("Side")
-        self.btn_side.setToolTip("Side view (S)")
-        self.btn_front = QPushButton("Front")
-        self.btn_front.setToolTip("Front view")
+        self.btn_side = QPushButton("옆")
+        self.btn_side.setToolTip("옆면 시점 (S)")
+        self.btn_front = QPushButton("앞")
+        self.btn_front.setToolTip("정면 시점")
         btn_row2.addWidget(self.btn_side)
         btn_row2.addWidget(self.btn_front)
         view_layout.addLayout(btn_row2)
 
         # Auto-rotate
-        self.check_auto_rotate = QCheckBox("Auto Rotate")
+        self.check_auto_rotate = QCheckBox("자동 회전")
         view_layout.addWidget(self.check_auto_rotate)
 
         layout.addWidget(view_group)
 
         # Screenshot
-        action_group = QGroupBox("Actions")
+        action_group = QGroupBox("작업")
         action_layout = QVBoxLayout(action_group)
 
-        self.btn_screenshot = QPushButton("Save Screenshot")
-        self.btn_screenshot.setToolTip("Save current view as PNG")
+        self.btn_screenshot = QPushButton("스크린샷 저장")
+        self.btn_screenshot.setToolTip("현재 보기를 PNG로 저장합니다.")
         action_layout.addWidget(self.btn_screenshot)
 
         layout.addWidget(action_group)
@@ -142,13 +142,14 @@ class Galaxy3DControlPanel(QWidget):
         help_layout.setContentsMargins(8, 8, 8, 8)
 
         help_text = QLabel(
-            "<b>Controls:</b><br>"
-            "- Left drag: Rotate<br>"
-            "- Right drag: Pan<br>"
-            "- Scroll: Zoom<br>"
-            "- R: Reset view<br>"
-            "- T: Top view<br>"
-            "- S: Side view"
+            "<b>탐구 포인트</b><br>"
+            "- 왼쪽 드래그: 회전<br>"
+            "- 오른쪽 드래그: 이동<br>"
+            "- 휠 스크롤: 확대/축소<br>"
+            "- R: 시점 초기화<br>"
+            "- T: 위에서 보기<br>"
+            "- S: 옆에서 보기<br><br>"
+            "2D 회전곡선에서 본 질량 분포를 3D 구조와 연결해 해석해 보세요."
         )
         help_text.setObjectName("subtitle")
         help_text.setWordWrap(True)

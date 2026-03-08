@@ -23,16 +23,16 @@ class GalaxyPicker(QDialog):
         self._populate_table()
 
     def _setup_ui(self):
-        self.setWindowTitle("Select Galaxy")
+        self.setWindowTitle("은하 선택")
         self.resize(900, 580)
 
         layout = QVBoxLayout(self)
 
         # Search box
         search_layout = QVBoxLayout()
-        search_label = QLabel("Search:")
+        search_label = QLabel("검색:")
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Type galaxy name...")
+        self.search_input.setPlaceholderText("은하 이름 입력...")
         self.search_input.textChanged.connect(self._filter_table)
         search_layout.addWidget(search_label)
         search_layout.addWidget(self.search_input)
@@ -47,7 +47,7 @@ class GalaxyPicker(QDialog):
         layout.addWidget(self.table)
 
         # Info label
-        self.info_label = QLabel("Double-click to select a galaxy")
+        self.info_label = QLabel("은하를 더블클릭하여 선택하세요.")
         self.info_label.setObjectName("subtitle")
         layout.addWidget(self.info_label)
 
@@ -114,7 +114,7 @@ class GalaxyPicker(QDialog):
                 self.model.appendRow(items)
 
         count = self.model.rowCount()
-        self.info_label.setText(f"Showing {count} galaxies")
+        self.info_label.setText(f"표시 중인 은하: {count}개")
 
     def _on_double_click(self, index):
         """Handle double-click on table row."""

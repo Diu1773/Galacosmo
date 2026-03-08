@@ -59,7 +59,7 @@ class RotationCurveWindow(QMainWindow):
         self._connect_signals()
 
     def _setup_ui(self):
-        self.setWindowTitle("Rotation Curve Simulator")
+        self.setWindowTitle("은하 회전곡선 탐구")
         self.resize(1200, 750)
 
         if self.app_icon:
@@ -78,20 +78,15 @@ class RotationCurveWindow(QMainWindow):
 
         self.canvas = DualPanelCanvas(figsize=(8, 6), height_ratios=(3, 1))
         self.canvas.set_help_text(
-            "Rotation Curve Help\n\n"
-            "- Observed + Total toggles data points and total curve\n"
-            "- Right-click a curve checkbox to set its color\n"
+            "회전곡선 탐구 도움말\n\n"
+            "- 먼저 Observed와 Baryons를 함께 보며 가시물질만으로 설명 가능한지 확인하세요.\n"
             "- Baryons = sqrt(Disk^2 + Bulge^2 + Gas^2)\n"
-            "- Baryons: combined mass from disk+bulge+gas (visible matter)\n"
             "- Total = sqrt(Baryons^2 + Halo^2)\n"
-            "- Residuals show ΔV relative to the fitted total curve\n"
-            "- Cosmology: H0/Omega_m/Omega_L apply to NFW/H(z) only\n"
-            "- ISO: core-like halo (rho0, rc), no cosmology inputs\n"
-            "- NFW: cuspy halo (V200, c), uses H0 and Omega parameters\n"
-            "- rho0: ISO central density (M_sun/kpc^3)\n"
-            "- rc: ISO core radius (kpc)\n"
-            "- V200: NFW circular speed at R200 (km/s)\n"
-            "- c: NFW concentration (dimensionless)\n"
+            "- M/L Disk, M/L Bulge는 별빛을 질량으로 환산하는 가정을 바꿉니다.\n"
+            "- ISO는 코어형, NFW는 커스프형 암흑물질 헤일로 모델입니다.\n"
+            "- Residuals는 관측값과 적합 모형의 차이(ΔV)를 보여줍니다.\n"
+            "- 체크박스를 우클릭하면 곡선 색상을 바꿀 수 있습니다.\n"
+            "- 탐구 질문: M/L만 조정해도 충분한가, 아니면 halo가 필요한가?\n"
         )
         self.rotation_tab = QWidget()
         rotation_layout = QVBoxLayout(self.rotation_tab)
@@ -100,14 +95,14 @@ class RotationCurveWindow(QMainWindow):
         rotation_layout.addWidget(self.canvas)
 
         residual_layout = QHBoxLayout()
-        self.btn_residuals_toggle = QPushButton("Residuals: On")
+        self.btn_residuals_toggle = QPushButton("잔차: 표시")
         self.btn_residuals_toggle.setCheckable(True)
         self.btn_residuals_toggle.setChecked(True)
         residual_layout.addWidget(self.btn_residuals_toggle)
         residual_layout.addStretch()
         rotation_layout.addLayout(residual_layout)
 
-        self.tabs.addTab(self.rotation_tab, "Rotation Curve")
+        self.tabs.addTab(self.rotation_tab, "회전곡선")
 
         self.galaxy_view_widget = QWidget()
         galaxy_layout = QVBoxLayout(self.galaxy_view_widget)
@@ -116,11 +111,11 @@ class RotationCurveWindow(QMainWindow):
 
         # Header with galaxy name and select button
         galaxy_header = QHBoxLayout()
-        self.lbl_galaxy_tab = QLabel("Galaxy: —")
+        self.lbl_galaxy_tab = QLabel("은하: —")
         self.lbl_galaxy_tab.setObjectName("subtitle")
         galaxy_header.addWidget(self.lbl_galaxy_tab)
         galaxy_header.addStretch()
-        self.btn_pick_galaxy_tab = QPushButton("Select Galaxy")
+        self.btn_pick_galaxy_tab = QPushButton("은하 선택")
         galaxy_header.addWidget(self.btn_pick_galaxy_tab)
         galaxy_layout.addLayout(galaxy_header)
 
@@ -129,7 +124,7 @@ class RotationCurveWindow(QMainWindow):
         self.galaxy_3d_viewer = Galaxy3DViewer(theme=theme)
         galaxy_layout.addWidget(self.galaxy_3d_viewer)
 
-        self.tabs.addTab(self.galaxy_view_widget, "Galaxy 3D View")
+        self.tabs.addTab(self.galaxy_view_widget, "은하 3D 보기")
 
         splitter.addWidget(self.tabs)
 
@@ -148,8 +143,8 @@ class RotationCurveWindow(QMainWindow):
         galaxy3d_scroll.setWidgetResizable(True)
         galaxy3d_scroll.setFrameShape(QScrollArea.NoFrame)
 
-        self.controls_tabs.addTab(rotation_scroll, "Rotation Controls")
-        self.controls_tabs.addTab(galaxy3d_scroll, "Galaxy 3D Controls")
+        self.controls_tabs.addTab(rotation_scroll, "회전 설정")
+        self.controls_tabs.addTab(galaxy3d_scroll, "3D 보기 설정")
         splitter.addWidget(self.controls_tabs)
 
         # Set initial sizes (70% plot, 30% controls)
@@ -183,7 +178,7 @@ class RotationCurveWindow(QMainWindow):
         start_dir = self.base_dir or (str(default_dir) if default_dir else os.getcwd())
         paths, _ = QFileDialog.getOpenFileNames(
             self,
-            "Select SPARC Table1 and Table2 Files",
+            "SPARC Table1, Table2 파일 선택",
             start_dir,
             "SPARC Files (*.mrt *.txt *.dat);;All Files (*)",
         )
@@ -209,8 +204,8 @@ class RotationCurveWindow(QMainWindow):
         if not table1_path or not table2_path:
             QMessageBox.warning(
                 self,
-                "Files Not Found",
-                "Please select both Table1 and Table2 files."
+                "파일 선택 오류",
+                "Table1과 Table2 파일을 모두 선택하세요."
             )
             return
 
@@ -240,8 +235,8 @@ class RotationCurveWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(
                 self,
-                "Load Error",
-                f"Failed to read SPARC files:\n{e}"
+                "불러오기 오류",
+                f"SPARC 파일을 읽는 중 오류가 발생했습니다.\n{e}"
                 )
 
     def _on_pick_galaxy(self):
@@ -249,8 +244,8 @@ class RotationCurveWindow(QMainWindow):
         if self.table1_df is None:
             QMessageBox.information(
                 self,
-                "No Data",
-                "Please load a data folder first."
+                "데이터 없음",
+                "먼저 SPARC 데이터를 불러오세요."
             )
             return
 
@@ -262,7 +257,7 @@ class RotationCurveWindow(QMainWindow):
         """Delete selected files from the list."""
         selected = self.rotation_controls.get_selected_files()
         if not selected:
-            QMessageBox.information(self, "No Selection", "Select a file to remove.")
+            QMessageBox.information(self, "선택 없음", "삭제할 파일을 선택하세요.")
             return
         self._clear_loaded_data()
 
@@ -287,7 +282,7 @@ class RotationCurveWindow(QMainWindow):
         self._galaxy_view_dirty = True
         self.rotation_controls.clear_loaded_files()
         self.rotation_controls.set_galaxy_name("")
-        self.lbl_galaxy_tab.setText("Galaxy: —")
+        self.lbl_galaxy_tab.setText("은하: —")
         self.canvas.clear()
         self.canvas.draw()
         self.galaxy_3d_viewer.clear()
@@ -364,7 +359,7 @@ class RotationCurveWindow(QMainWindow):
         """Set current galaxy and run fit."""
         self.current_galaxy = name
         self.rotation_controls.set_galaxy_name(name)
-        self.lbl_galaxy_tab.setText(f"Galaxy: {name}")
+        self.lbl_galaxy_tab.setText(f"은하: {name}")
         self._run_fit()
 
     def _on_halo_changed(self, model: str):
@@ -379,9 +374,9 @@ class RotationCurveWindow(QMainWindow):
         """Handle residual panel toggle."""
         self._show_residuals = self.btn_residuals_toggle.isChecked()
         if self._show_residuals:
-            self.btn_residuals_toggle.setText("Residuals: On")
+            self.btn_residuals_toggle.setText("잔차: 표시")
         else:
-            self.btn_residuals_toggle.setText("Residuals: Off")
+            self.btn_residuals_toggle.setText("잔차: 숨김")
         self._update_plot()
 
     def _run_fit(self):
@@ -437,8 +432,8 @@ class RotationCurveWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(
                 self,
-                "Fit Error",
-                f"Fitting failed:\n{e}"
+                "적합 오류",
+                f"모형 적합 중 오류가 발생했습니다.\n{e}"
             )
 
     def _update_plot(self, visibility=None):
@@ -652,12 +647,12 @@ class RotationCurveWindow(QMainWindow):
     def _on_galaxy_3d_screenshot(self):
         """Handle screenshot request."""
         if self.current_galaxy is None:
-            QMessageBox.information(self, "No Galaxy", "Please select a galaxy first.")
+            QMessageBox.information(self, "은하 없음", "먼저 은하를 선택하세요.")
             return
 
         filename, _ = QFileDialog.getSaveFileName(
             self,
-            "Save Screenshot",
+            "스크린샷 저장",
             f"{self.current_galaxy}_3d.png",
             "PNG Files (*.png);;All Files (*)"
         )
